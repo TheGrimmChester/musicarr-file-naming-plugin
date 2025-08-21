@@ -1,0 +1,27 @@
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-file-code me-2"></i>{{ 'configuration.file_naming.title'|trans }}
+        </h5>
+    </div>
+    <div class="card-body">
+        <p class="text-muted">{{ 'configuration.file_naming.description'|trans }}</p>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="d-grid">
+                    <a href="{{ path('file_naming_patterns_index') }}" class="btn btn-primary">
+                        <i class="fas fa-file-code me-2"></i>{{ 'configuration.file_naming.manage_patterns'|trans }}
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-grid">
+                    <a href="{{ path('file_renaming_index') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-file-signature me-2"></i>{{ 'configuration.file_naming.manage_renaming'|trans }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

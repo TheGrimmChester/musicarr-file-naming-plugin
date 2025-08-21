@@ -1,0 +1,7 @@
+{
+    "name": "musicarr-file-naming-plugin",
+    "version": "1.0.0",
+    "description": "File naming and renaming plugin for Musicarr - handles file naming patterns, previews, and renaming operations",
+    "author": "Musicarr Team",
+    "bundle_class": "Musicarr\\FileNamingPlugin\\FileNamingPluginBundle"
+}

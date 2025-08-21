@@ -1,0 +1,191 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Add Naming Pattern{% endblock %}
+
+{% block body %}
+{% from 'partials/_breadcrumbs.html.twig' import render_breadcrumbs %}
+
+{% set breadcrumbs = [
+    {'text': 'Home', 'url': path('home')},
+    {'text': 'File Naming Patterns', 'url': path('file_naming_patterns_index')},
+    {'text': 'Add Naming Pattern', 'url': null, 'active': true}
+] %}
+
+{{ render_breadcrumbs(breadcrumbs) }}
+
+<div class="container-fluid" data-controller="musicarr-file-naming-plugin-file-naming-pattern">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-file-code text-primary"></i> Add Naming Pattern</h1>
+                <a href="{{ path('file_naming_patterns_index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Add Naming Pattern</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="name" class="form-label">Pattern Name *</label>
+                                            <input type="text" class="form-control" id="name" name="name" required 
+                                                   placeholder="Pattern Name">
+                                            <div class="form-text">Enter a descriptive name for this pattern</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="isActive" class="form-label">Status</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="isActive" name="isActive" checked>
+                                                <label class="form-check-label" for="isActive">
+                                                    Active
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="pattern" class="form-label">Pattern *</label>
+                                    <textarea class="form-control" id="pattern" name="pattern" rows="4" required 
+                                              placeholder="{{ '{{artist}}/{{album}}/{{trackNumber}} - {{title}}.{{extension}}' }}" 
+                                              data-musicarr-file-naming-plugin-file-naming-pattern-target="pattern">{{ '{{artist}}/{{album}}/{{trackNumber}} - {{title}}.{{extension}}' }}</textarea>
+                                    <div class="form-text">
+                                        <strong>Available Variables:</strong><br>
+                                        <div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <strong>Basic:</strong><br>
+                                                <code>{{ "{{artist}}" }}</code> - Artist name<br>
+                                                <code>{{ "{{artist_folder}}" }}</code> - Artist folder path<br>
+                                                <code>{{ "{{album}}" }}</code> - Album title<br>
+                                                <code>{{ "{{title}}" }}</code> - Track title<br>
+                                                <code>{{ "{{trackNumber}}" }}</code> - Track number<br>
+                                                <code>{{ "{{year}}" }}</code> - Release year<br>
+                                                <code>{{ "{{extension}}" }}</code> - File extension<br>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>Audio Quality:</strong><br>
+                                                <code>{{ "{{quality}}" }}</code> - Audio quality (ex: 320kbps)<br>
+                                                <code>{{ "{{quality_short}}" }}</code> - Short quality (ex: 320, FLAC)<br>
+                                                <code>{{ "{{format}}" }}</code> - Audio format (ex: MP3)<br>
+                                                <code>{{ "{{format_short}}" }}</code> - Short format (ex: MP3)<br>
+                                                <code>{{ "{{bitrate}}" }}</code> - Bitrate (ex: 320kbps, Lossless)<br>
+                                                <code>{{ "{{bitrate_short}}" }}</code> - Short bitrate (ex: 320, FLAC)<br>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <strong>Quality Badges:</strong><br>
+                                                <code>{{ "{{quality_badge}}" }}</code> - Full quality info<br>
+                                                <code>{{ "{{quality_full}}" }}</code> - Same as quality_badge<br>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>Medium:</strong><br>
+                                                <code>{{ "{{medium}}" }}</code> - Medium type (ex: CD 1, Vinyl)<br>
+                                                <code>{{ "{{medium_short}}" }}</code> - Short medium (ex: CD1, Vinyl)<br>
+                                                <code>{{ "{{mediums_count}}" }}</code> - Number of mediums in album<br>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description</label>
+                                    <textarea class="form-control" id="description" name="description" rows="2" 
+                                              placeholder="Optional description for this pattern"></textarea>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-outline-secondary" data-action="click->musicarr-file-naming-plugin-file-naming-pattern#updatePreview">
+                                        <i class="fas fa-eye"></i> Preview
+                                    </button>
+                                    <div>
+                                        <a href="{{ path('file_naming_patterns_index') }}" class="btn btn-secondary me-2">Cancel</a>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Add Pattern
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Live Preview</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="preview" class="text-muted" data-musicarr-file-naming-plugin-file-naming-pattern-target="preview">
+                                <i class="fas fa-eye"></i> Preview will appear here as you type
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Example Patterns</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <strong>Simple:</strong><br>
+                                <code class="d-block mt-1 p-2 bg-light small">{{ "{{artist}}/{{album}}/{{trackNumber}} - {{title}}.{{extension}}" }}</code>
+                            </div>
+                            <div class="mb-2">
+                                <strong>With Quality:</strong><br>
+                                <code class="d-block mt-1 p-2 bg-light small">{{ "{{artist}}/{{album}}/{{trackNumber}} - {{title}} [{{quality}}].{{extension}}" }}</code>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Conditional Medium (only for multi-disc):</strong><br>
+                                <code class="d-block mt-1 p-2 bg-light small">{% verbatim %}{{artist}}/{{album}}/{% if mediums_count > 1 %}{{medium}}/{% endif %}{{trackNumber}} - {{title}}.{{extension}}{% endverbatim %}</code>
+                            </div>
+                            <div class="mb-2">
+                                <strong>With Quality Info (if available):</strong><br>
+                                <code class="d-block mt-1 p-2 bg-light small">{% verbatim %}{{artist}}/{{album}} {% if quality %}[{{quality}}]{% endif %}/{{trackNumber}} - {{title}}.{{extension}}{% endverbatim %}</code>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Comprehensive with Conditionals:</strong><br>
+                                <code class="d-block mt-1 p-2 bg-light small">{% verbatim %}{{artist}}/{{album}}{% if quality %} [{{quality}}]{% endif %}/{% if mediums_count > 1 %}{{medium}}/{% endif %}{{trackNumber}} - {{title}}.{{extension}}{% endverbatim %}</code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Twig Conditionals</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="small"><strong>Basic If:</strong> <code>{% verbatim %}{% if variable %}content{% endif %}{% endverbatim %}</code></p>
+                            <p class="small"><strong>Comparison:</strong> <code>{% verbatim %}{% if mediums_count > 1 %}{{medium}}/{% endif %}{% endverbatim %}</code></p>
+                            <p class="small"><strong>Track Object:</strong> <code>{% verbatim %}{% if track.album.artist %}{{track.album.artist.name}}/{% endif %}{% endverbatim %}</code></p>
+                            <p class="small text-muted">Access the full track object with all properties and relationships.</p>
+                            <p class="small text-muted">Conditionals only show content when the condition is true.</p>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Quick Start</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="small text-muted">Start typing in the pattern field above to see a live preview of how your files will be named.</p>
+                            <p class="small text-muted">The preview updates automatically as you type, supporting both simple {{ '{variable}' }} patterns and Twig conditionals.</p>
+                            <p class="small text-muted">Use the example patterns above as starting points for your own patterns.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %} 

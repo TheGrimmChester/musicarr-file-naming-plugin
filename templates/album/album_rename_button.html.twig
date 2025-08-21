@@ -1,0 +1,55 @@
+{# Access context data using Sylius TwigHooks functions #}
+{% set album = get_hookable_context().album %}
+
+{# Get tracks data from the album context #}
+{% set tracksData = [] %}
+{% if album.tracks is defined %}
+    {% for track in album.tracks %}
+        {# Get file information from TrackFile entities #}
+        {% set fileCount = track.files|length %}
+        {% set totalFileSize = 0 %}
+        {% set trackFiles = [] %}
+
+        {% for file in track.files %}
+            {% set totalFileSize = totalFileSize + file.fileSize %}
+            {% set trackFiles = trackFiles|merge([{
+                id: file.id,
+                filePath: file.filePath,
+                fileSize: file.fileSize,
+                quality: file.quality,
+                format: file.format,
+                duration: file.duration,
+                isPreferred: false,
+                needRename: file.needRename ?? file.need_rename ?? false
+            }]) %}
+        {% endfor %}
+
+        {% set trackData = {
+            id: track.id,
+            title: track.title,
+            trackNumber: track.trackNumber,
+            hasFile: track.hasFile,
+            downloaded: track.downloaded,
+            duration: track.duration,
+            files: trackFiles,
+            fileCount: fileCount,
+            totalFileSize: totalFileSize
+        } %}
+        {% set tracksData = tracksData|merge([trackData]) %}
+    {% endfor %}
+{% endif %}
+
+{% if album is defined %}
+    <button class="btn btn-outline-warning btn-lg"
+            data-controller="musicarr-file-naming-plugin-album-rename"
+            data-action="click->musicarr-file-naming-plugin-album-rename#openRenameModal"
+            data-musicarr-file-naming-plugin-album-rename-album-id-value="{{ album.id }}"
+            data-musicarr-file-naming-plugin-album-rename-album-title-value="{{ album.title|e('js') }}"
+            data-musicarr-file-naming-plugin-album-rename-artist-id-value="{{ album.artist.id }}"
+            data-musicarr-file-naming-plugin-album-rename-artist-name-value="{{ album.artist.name|e('js') }}"
+            data-musicarr-file-naming-plugin-album-rename-tracks-value="{{ tracksData|json_encode|e('html_attr') }}"
+            title="Rename album files"
+            id="rename-album-btn-{{ album.id }}">
+        <i class="fas fa-file-signature"></i> Rename Files
+    </button>
+{% endif %}

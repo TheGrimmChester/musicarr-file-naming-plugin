@@ -1,0 +1,30 @@
+<div class="col-md-6 col-lg-4 mb-4">
+    <div class="card h-100">
+        <div class="card-header bg-primary text-white">
+            <h6 class="mb-0">
+                <i class="fas fa-file-signature me-2"></i>{{ 'dashboard.file_renaming.title'|trans }}
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-6">
+                    <div class="border-end">
+                        <h4 class="text-primary mb-1">{{ tracks_needing_rename|default(0) }}</h4>
+                        <small class="text-muted">{{ 'dashboard.file_renaming.tracks_needing_rename'|trans }}</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <h4 class="text-success mb-1">{{ patterns_count|default(0) }}</h4>
+                    <small class="text-muted">{{ 'dashboard.file_renaming.active_patterns'|trans }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="d-grid">
+                <a href="{{ path('file_renaming_index') }}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-arrow-right me-2"></i>{{ 'dashboard.file_renaming.view_details'|trans }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

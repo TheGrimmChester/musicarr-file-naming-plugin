@@ -1,0 +1,6 @@
+file_naming_plugin:
+    resource: '../src/Controller/'
+    type: attribute
+    prefix: ''
+
+

@@ -1,0 +1,62 @@
+{# Rename Modal Template for File Naming Plugin #}
+{# DEBUG: This template should be rendered via the album.modals Twig hook #}
+{% set album = get_hookable_context().album %}
+
+<!-- Modal pour le renommage des fichiers -->
+<div class="modal fade" id="renameFilesModal" tabindex="-1" data-musicarr-file-naming-plugin-album-rename-target="renameModal">
+    <div class="modal-dialog modal-full">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-file-signature me-2"></i>Renommer les fichiers de l'album
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="patternSelect" class="form-label">Pattern de nommage</label>
+                        <select id="patternSelect" class="form-select" data-musicarr-file-naming-plugin-album-rename-target="patternSelect" data-action="change->musicarr-file-naming-plugin-album-rename#generatePreview">
+                            <option value="">Sélectionner un pattern</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Sélection</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="selectAllTracks" checked data-action="change->musicarr-file-naming-plugin-album-rename#toggleAllTracks">
+                            <label class="form-check-label" for="selectAllTracks">
+                                <strong>Sélectionner toutes les pistes</strong>
+                            </label>
+                        </div>
+                        <small class="text-muted">Décochez pour sélectionner manuellement</small>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th width="50">
+                                    <input type="checkbox" id="selectAllCheckbox" checked data-action="change->musicarr-file-naming-plugin-album-rename#toggleAllTracks">
+                                </th>
+                                <th>N°</th>
+                                <th>Titre</th>
+                                <th>Fichiers</th>
+                                <th>Nouveau nom</th>
+                            </tr>
+                        </thead>
+                        <tbody id="renameTracksTable" data-musicarr-file-naming-plugin-album-rename-target="renameTracksTable">
+                            <!-- Les pistes seront chargées ici -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-success" id="renameBtn" disabled data-action="click->musicarr-file-naming-plugin-album-rename#renameFiles" data-musicarr-file-naming-plugin-album-rename-target="renameBtn">
+                    <i class="fas fa-save"></i> Renommer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

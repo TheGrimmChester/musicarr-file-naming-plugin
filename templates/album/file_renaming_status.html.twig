@@ -1,0 +1,37 @@
+{% set track = get_hookable_context().track %}
+{% set album = get_hookable_context().album %}
+
+<div class="file-renaming-status-widget mb-3">
+    <div class="card">
+        <div class="card-header">
+            <h6 class="mb-0">
+                <i class="fas fa-file-signature me-2"></i>{{ 'album.file_renaming_status'|trans }}
+            </h6>
+        </div>
+        <div class="card-body">
+            {% set tracksNeedingRename = 0 %}
+            {% for medium in album.mediums %}
+                {% for track in medium.tracks %}
+                    {% if track.needRename %}
+                        {% set tracksNeedingRename = tracksNeedingRename + 1 %}
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+
+            {% if tracksNeedingRename > 0 %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ 'album.tracks_need_renaming'|trans({'count': tracksNeedingRename}) }}
+                </div>
+                <a href="{{ path('file_renaming_index') }}" class="btn btn-sm btn-warning">
+                    <i class="fas fa-file-signature me-2"></i>{{ 'album.rename_files'|trans }}
+                </a>
+            {% else %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    {{ 'album.all_files_renamed'|trans }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

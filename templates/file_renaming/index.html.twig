@@ -1,0 +1,189 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'renaming.title'|trans }}{% endblock %}
+
+{% block body %}
+{% from 'partials/_breadcrumbs.html.twig' import render_breadcrumbs %}
+
+{% set breadcrumbs = [
+    {'text': 'breadcrumb.home'|trans, 'url': path('home')},
+    {'text': 'renaming.title'|trans, 'url': null, 'active': true}
+] %}
+
+{{ render_breadcrumbs(breadcrumbs) }}
+
+<div class="container-fluid" data-controller="musicarr-file-naming-plugin-file-renaming">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-file-signature text-primary"></i> {{ 'renaming.title'|trans }}</h1>
+                <div>
+                    <button id="previewBtn" class="btn btn-info me-2" disabled data-musicarr-file-naming-plugin-file-renaming-target="previewBtn" data-action="click->musicarr-file-naming-plugin-file-renaming#generatePreview">
+                        <i class="fas fa-eye"></i> {{ 'renaming.preview'|trans }}
+                    </button>
+                    <button id="renameBtn" class="btn btn-success" disabled data-musicarr-file-naming-plugin-file-renaming-target="renameBtn" data-action="click->musicarr-file-naming-plugin-file-renaming#executeRename">
+                        <i class="fas fa-save"></i> {{ 'renaming.rename_files'|trans }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Configuration -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ 'renaming.title'|trans }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="fileRenamingPatternSelect" class="form-label">{{ 'naming_pattern.pattern'|trans }}</label>
+                            <select id="fileRenamingPatternSelect" class="form-select" data-musicarr-file-naming-plugin-file-renaming-target="patternSelect" data-action="change->musicarr-file-naming-plugin-file-renaming#updateSelection">
+                                <option value="">{{ 'renaming.select_library'|trans }}</option>
+                                {% for pattern in patterns %}
+                                <option value="{{ pattern.id }}" data-pattern="{{ pattern.pattern }}">
+                                    {{ pattern.name }} - {{ pattern.pattern }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">{{ 'renaming.filters'|trans }}</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="selectAll" checked data-action="change->musicarr-file-naming-plugin-file-renaming#toggleAllTracks">
+                                <label class="form-check-label" for="selectAll">
+                                    <strong>{{ 'renaming.select_all'|trans }}</strong>
+                                </label>
+                            </div>
+                            <small class="text-muted">{{ 'renaming.deselect_all'|trans }}</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Filters -->
+                    <div class="row mt-3">
+                        <div class="col-md-3">
+                            <label for="searchInput" class="form-label">{{ 'renaming.search'|trans }}</label>
+                            <input type="text" class="form-control" id="searchInput" placeholder="{{ 'renaming.search_placeholder'|trans }}" data-action="input->musicarr-file-naming-plugin-file-renaming#applyFilters">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="artistFilter" class="form-label">{{ 'placeholder.artist'|trans }}</label>
+                            <input type="text" class="form-control" id="artistFilter" placeholder="{{ 'renaming.artist_filter_placeholder'|trans }}" data-action="input->musicarr-file-naming-plugin-file-renaming#applyFilters">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="albumFilter" class="form-label">{{ 'placeholder.album'|trans }}</label>
+                            <input type="text" class="form-control" id="albumFilter" placeholder="{{ 'renaming.album_filter_placeholder'|trans }}" data-action="input->musicarr-file-naming-plugin-file-renaming#applyFilters">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="titleFilter" class="form-label">{{ 'placeholder.track'|trans }}</label>
+                            <input type="text" class="form-control" id="titleFilter" placeholder="{{ 'renaming.title_filter_placeholder'|trans }}" data-action="input->musicarr-file-naming-plugin-file-renaming#applyFilters">
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="clearFiltersBtn" data-action="click->musicarr-file-naming-plugin-file-renaming#clearFilters">
+                                <i class="fas fa-times me-1"></i>{{ 'renaming.clear_filters'|trans }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liste des pistes -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ 'track.title'|trans }} (<span id="totalTracksCount" data-musicarr-file-naming-plugin-file-renaming-target="totalTracksCount">0</span>)</h5>
+                    <div class="d-flex gap-2 align-items-center">
+                        <button class="btn btn-outline-info btn-sm" data-action="click->musicarr-file-naming-plugin-file-renaming#analyzeQualityBatch">
+                            <i class="fas fa-chart-line me-1"></i>{{ 'audio_quality.title'|trans }}
+                        </button>
+                        <span id="selectedCount" class="badge bg-primary" data-musicarr-file-naming-plugin-file-renaming-target="selectedCount">{{ 'renaming.selected_count'|trans|replace({'%count%': 0}) }}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th width="50">
+                                        <input type="checkbox" class="form-check-input" id="selectAllHeader" data-action="change->musicarr-file-naming-plugin-file-renaming#toggleAllTracks">
+                                    </th>
+                                    <th>{{ 'placeholder.artist'|trans }}</th>
+                                    <th>{{ 'placeholder.album'|trans }}</th>
+                                    <th>{{ 'placeholder.track'|trans }}</th>
+                                    <th>{{ 'placeholder.track_number'|trans }}</th>
+                                    <th>{{ 'file.current_name'|trans }}</th>
+                                    <th>{{ 'file.new_name'|trans }}</th>
+                                    <th>{{ 'status.status'|trans }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tracksTableBody" data-musicarr-file-naming-plugin-file-renaming-target="tracksTableBody">
+                                <!-- Tracks will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Loading indicator -->
+                    <div id="loadingIndicator" class="text-center py-4" style="display: none;" data-musicarr-file-naming-plugin-file-renaming-target="loadingIndicator">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">{{ 'app.loading'|trans }}</p>
+                    </div>
+                    
+                    <!-- End of data indicator -->
+                    <div id="endOfDataIndicator" class="text-center py-4" style="display: none;" data-musicarr-file-naming-plugin-file-renaming-target="endOfDataIndicator">
+                        <i class="fas fa-check-circle text-success fa-2x mb-3"></i>
+                        <p>{{ 'renaming.all_tracks_loaded'|trans }}</p>
+                    </div>
+                    
+                    <!-- Infinite scroll trigger -->
+                    <div id="infiniteScrollTrigger" data-musicarr-file-naming-plugin-file-renaming-target="infiniteScrollTrigger"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" data-musicarr-file-naming-plugin-file-renaming-target="previewModal">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ 'renaming.preview_title'|trans }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="previewContent" data-musicarr-file-naming-plugin-file-renaming-target="previewContent">
+                    <!-- Preview content will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'app.close'|trans }}</button>
+                <button type="button" class="btn btn-success" data-action="click->musicarr-file-naming-plugin-file-renaming#confirmRename">{{ 'renaming.confirm_rename'|trans }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm Rename Modal -->
+<div class="modal fade" id="confirmRenameModal" tabindex="-1" data-musicarr-file-naming-plugin-file-renaming-target="confirmRenameModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ 'renaming.confirm_title'|trans }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ 'renaming.confirm_message'|trans }}</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ 'renaming.confirm_warning'|trans }}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'app.cancel'|trans }}</button>
+                <button type="button" class="btn btn-danger" data-action="click->musicarr-file-naming-plugin-file-renaming#executeRename">{{ 'renaming.execute_rename'|trans }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

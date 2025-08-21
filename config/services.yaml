@@ -1,0 +1,15 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    Musicarr\FileNamingPlugin\:
+        resource: '../src/*'
+        exclude:
+            - '../src/DependencyInjection/*'
+            - '../src/Tests/*'
+
+
+
+

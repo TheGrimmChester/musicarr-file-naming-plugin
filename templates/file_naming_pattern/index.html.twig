@@ -1,0 +1,158 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'naming_pattern.title'|trans }}{% endblock %}
+
+{% block body %}
+{% from 'partials/_breadcrumbs.html.twig' import render_breadcrumbs %}
+
+{% set breadcrumbs = [
+    {'text': 'breadcrumb.home'|trans, 'url': path('home')},
+    {'text': 'naming_pattern.title'|trans, 'url': null, 'active': true}
+] %}
+
+{{ render_breadcrumbs(breadcrumbs) }}
+
+<div class="container-fluid" data-controller="file-naming-pattern">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-file-signature"></i> {{ 'naming_pattern.title'|trans }}</h1>
+                <div>
+                    <a href="{{ path('file_naming_pattern_new') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> {{ 'naming_pattern.add'|trans }}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Aide sur les variables -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ 'naming_pattern.variables'|trans }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>{{ 'placeholder.artist'|trans }} :</h6>
+                            <ul class="list-unstyled">
+                                <li><code>{{ "{{artist}}" }}</code> - {{ 'placeholder.artist'|trans }}</li>
+                                <li><code>{{ "{{artist_folder}}" }}</code> - {{ 'placeholder.artist_folder'|trans }} <small class="text-muted">(uses custom folder path)</small></li>
+                                <li><code>{{ "{{album}}" }}</code> - {{ 'placeholder.album'|trans }}</li>
+                                <li><code>{{ "{{title}}" }}</code> - {{ 'placeholder.track'|trans }}</li>
+                                <li><code>{{ "{{trackNumber}}" }}</code> - {{ 'placeholder.track_number'|trans }}</li>
+                                <li><code>{{ "{{extension}}" }}</code> - {{ 'file.extension'|trans }}</li>
+                                <li><code>{{ "{{year}}" }}</code> - {{ 'placeholder.year'|trans }}</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>{{ 'audio_quality.title'|trans }} :</h6>
+                            <ul class="list-unstyled">
+                                <li><code>{{ "{{quality}}" }}</code> - {{ 'file.quality_example'|trans }}</li>
+                                <li><code>{{ "{{quality_short}}" }}</code> - {{ 'file.quality_short_example'|trans }}</li>
+                                <li><code>{{ "{{format}}" }}</code> - {{ 'file.format_example'|trans }}</li>
+                                <li><code>{{ "{{format_short}}" }}</code> - {{ 'file.format_short_example'|trans }}</li>
+                                <li><code>{{ "{{bitrate}}" }}</code> - {{ 'file.bitrate_example'|trans }}</li>
+                                <li><code>{{ "{{bitrate_short}}" }}</code> - {{ 'file.bitrate_short_example'|trans }}</li>
+                                <li><code>{{ "{{quality_badge}}" }}</code> ou <code>{{ "{{quality_full}}" }}</code> - {{ 'file.quality_badge_example'|trans }}</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>{{ 'naming_pattern.example'|trans }} :</h6>
+                            <ul class="list-unstyled">
+                                <li><code>{{ "{{artist}}/{{album}}/{{trackNumber}} - {{title}} [{{quality_badge}}].{{extension}}" }}</code></li>
+                                <li><code>{{ "{{artist_folder}}/{{album}}/{{trackNumber}} - {{title}}.{{extension}}" }}</code></li>
+                                <li><code>{{ "{{artist}} - {{title}} [{{format_short}} {{quality_short}}].{{extension}}" }}</code></li>
+                                <li><code>{{ "{{album}}/{{trackNumber}} - {{title}}.{{extension}}" }}</code></li>
+                                <li><code>{{ "{{artist}}/{{album}}/{{trackNumber}} - {{title}} [{{quality}}].{{extension}}" }}</code></li>
+                                <li><code>{{ "{{artist}}/{{year}}/{{album}}/{{trackNumber}} - {{title}} [{{format_short}}].{{extension}}" }}</code></li>
+                                <li><code>{{ "{{artist}}/{{album}}/{{trackNumber}} - {{title}} [{{bitrate_short}}].{{extension}}" }}</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liste des patterns -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ 'naming_pattern.title'|trans }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if patterns is empty %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-file-signature text-muted fa-3x mb-3"></i>
+                        <h4>{{ 'naming_pattern.no_results'|trans }}</h4>
+                        <p class="text-muted">{{ 'naming_pattern.title'|trans }}</p>
+                        <a href="{{ path('file_naming_pattern_new') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> {{ 'naming_pattern.add'|trans }}
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>{{ 'form.name'|trans }}</th>
+                                    <th>{{ 'naming_pattern.pattern'|trans }}</th>
+                                    <th>{{ 'naming_pattern.description'|trans }}</th>
+                                    <th>{{ 'status.status'|trans }}</th>
+                                    <th>{{ 'naming_pattern.actions'|trans }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pattern in patterns %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ pattern.name }}</strong>
+                                    </td>
+                                    <td>
+                                        <code class="text-break">{{ pattern.pattern }}</code>
+                                    </td>
+                                    <td>
+                                        {% if pattern.description %}
+                                        {{ pattern.description }}
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if pattern.isActive %}
+                                        <span class="badge bg-success">{{ 'status.active'|trans }}</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">{{ 'status.inactive'|trans }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-success toggle-pattern" 
+                                                    data-pattern-id="{{ pattern.id }}"
+                                                    data-is-active="{{ pattern.isActive ? 'true' : 'false' }}"
+                                                    data-action="click->file-naming-pattern#togglePattern">
+                                                {% if pattern.isActive %}
+                                                <i class="fas fa-toggle-on"></i>
+                                                {% else %}
+                                                <i class="fas fa-toggle-off"></i>
+                                                {% endif %}
+                                            </button>
+                                            <a href="{{ path('file_naming_pattern_edit', {id: pattern.id}) }}" 
+                                               class="btn btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button class="btn btn-outline-danger delete-pattern" 
+                                                    data-pattern-id="{{ pattern.id }}"
+                                                    data-action="click->file-naming-pattern#deletePattern">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

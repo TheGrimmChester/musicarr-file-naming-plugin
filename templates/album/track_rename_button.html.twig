@@ -1,0 +1,12 @@
+{% set track = get_hookable_context().track %}
+{% if track is defined %}
+    {% if track.needRename %}
+        <button class="btn btn-outline-warning btn-sm"
+                data-action="click->file-naming#renameTrack"
+                data-track-id="{{ track.id }}"
+                data-track-title="{{ track.title|e('js') }}"
+                title="{{ 'track.rename'|trans|default('Rename') }}">
+            <i class="fas fa-edit"></i>
+        </button>
+    {% endif %}
+{% endif %}
